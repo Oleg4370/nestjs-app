@@ -1,8 +1,8 @@
 import { Module } from '@nestjs/common';
 import { DatabaseModule } from '@src/shared/database';
-import { UserModule } from '@src/user';
-import { AuthModule } from '@src/auth';
-import { OperationModule } from '@src/operation';
+import { UserModule } from '@src/app/user';
+import { AuthModule } from '@src/app/auth';
+import { OperationModule } from '@src/app/operation';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 

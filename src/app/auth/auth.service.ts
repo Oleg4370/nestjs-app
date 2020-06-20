@@ -1,10 +1,10 @@
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { UserService } from '@src/user';
+import { UserService } from '@src/app/user';
 import { DatabaseService } from '@src/shared/database';
 import { JwtService } from '@nestjs/jwt';
-import { Token } from '@src/auth/auth.models';
+import { Token } from '@src/app/auth/auth.models';
 import { isEmpty } from 'lodash';
 
 @Injectable()

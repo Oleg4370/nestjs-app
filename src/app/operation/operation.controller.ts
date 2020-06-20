@@ -1,7 +1,7 @@
 import { Body, Controller, Get, Param, Post, UseGuards, BadRequestException } from '@nestjs/common';
 import { OperationService, OperationInterface } from './operation.service';
-import { JwtAuthGuard } from '@src/auth/guards';
-import { operationSchema } from '@src/operation/operation.schemas';
+import { JwtAuthGuard } from '@src/app/auth/guards';
+import { operationSchema } from '@src/app/operation/operation.schemas';
 
 @Controller('api/operations')
 export class OperationController {
