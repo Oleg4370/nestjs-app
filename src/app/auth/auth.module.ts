@@ -1,6 +1,5 @@
 import { JwtModule } from '@nestjs/jwt';
 import { Module } from '@nestjs/common';
-import { UserModule } from '@src/app/user';
 import { config } from '@src/config';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy, JwtStrategy } from '@src/app/auth/strategies';
@@ -13,8 +12,7 @@ import { AuthController } from './auth.controller';
       secret: config.token.secret,
       signOptions: { expiresIn: config.token.expiresIn },
     }),
-    PassportModule,
-    UserModule
+    PassportModule
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy]

@@ -5,10 +5,6 @@ import { DatabaseService } from '@src/shared/database';
 export class UserService {
   constructor(private databaseService: DatabaseService) {}
 
-  getUser(login: string): Promise<UserInterface> {
-    return this.databaseService.find('users', { login });
-  }
-
   addNewUser(newUser: UserInterface): Promise<UserInterface> {
     return this.databaseService.add('users', newUser);
   }

@@ -1,7 +1,6 @@
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { UserService } from '@src/app/user';
 import { DatabaseService } from '@src/shared/database';
 import { JwtService } from '@nestjs/jwt';
 import { Token } from '@src/app/auth/auth.models';
@@ -10,7 +9,6 @@ import { isEmpty } from 'lodash';
 @Injectable()
 export class AuthService {
   constructor(
-    private usersService: UserService,
     private jwtService: JwtService,
     private databaseService: DatabaseService
   ) {}
@@ -26,7 +24,10 @@ export class AuthService {
   }
 
   async validateUser(username: string, password: string): Promise<any> {
-    const { login, hash } = await this.usersService.getUser(username);
+    const { login, hash } = await this.databaseService.find(
+      'users',
+      { login: username }
+    );
     const isPasswordCorrect = hash && await bcrypt.compare(password, hash);
 
     if (login && isPasswordCorrect) {
