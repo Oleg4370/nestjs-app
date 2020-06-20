@@ -1,8 +1,8 @@
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
-import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { Injectable, BadRequestException } from '@nestjs/common';
 import { UserService } from '@src/user';
-import { DatabaseService } from '@src/database';
+import { DatabaseService } from '@src/shared/database';
 import { JwtService } from '@nestjs/jwt';
 import { Token } from '@src/auth/auth.models';
 import { isEmpty } from 'lodash';
@@ -50,8 +50,7 @@ export class AuthService {
   async refreshToken(refreshToken: string): Promise<Token> {
     const refreshTokenData = await this.databaseService.find('refreshTokens', { refreshToken });
     if (isEmpty(refreshTokenData)) {
-      //TODO: probably not the best place for throwing errors
-      throw new HttpException('refreshToken not exist', HttpStatus.BAD_REQUEST);
+      throw new BadRequestException('RefreshToken not exist');
     }
 
     await this.removeRefreshToken({
