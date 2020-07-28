@@ -8,5 +8,12 @@ export const configSchema = Joi.object().keys({
   token: Joi.object({
     secret: Joi.string().required(),
     expiresIn: Joi.string().required()
-  })
+  }),
+  dataBase: Joi.object({
+    name: Joi.string().required(),
+    host: Joi.string().required(),
+    port: Joi.number().integer(),
+    user: Joi.string().required(),
+    password: Joi.string().required(),
+  }),
 });
