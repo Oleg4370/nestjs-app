@@ -7,7 +7,7 @@ export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Get()
-  //@UseGuards(JwtAuthGuard)
+  @UseGuards(JwtAuthGuard)
   //TODO: add Guard - only for admin
   async getUsers(): Promise<UserInterface[]> {
     return await this.userService.getAllUsers();
@@ -15,7 +15,7 @@ export class UserController {
 
   @Get('/:id')
   @UseGuards(JwtAuthGuard)
-  async getUser(@Param() params): Promise<UserInterface> {
-    return await this.userService.getUser(params.id);
+  async getUserById(@Param() params): Promise<UserInterface> {
+    return await this.userService.getUserById(params.id);
   }
 }

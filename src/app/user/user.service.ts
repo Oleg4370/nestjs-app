@@ -1,22 +1,25 @@
-import { Injectable, Inject } from '@nestjs/common';
+import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { config } from '@src/config';
-import { User } from './user.entity';
-
+import { UserEntity } from './user.entity';
 
 @Injectable()
 export class UserService {
   constructor(
-    @Inject(config.dataBase.userRepo)
-    private userRepository: Repository<User>,
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>
   ) {}
 
-  async getAllUsers(): Promise<User[]> {
+  getAllUsers(): Promise<UserEntity[]> {
     return this.userRepository.find({ select: ['login', 'id']});
   }
 
-  async getUser(id): Promise<User> {
+  getUserById(id): Promise<UserEntity> {
     return this.userRepository.findOneOrFail(id, { select: ['login', 'id']});
+  }
+
+  getUser(condition): Promise<UserEntity> {
+    return this.userRepository.findOneOrFail(condition);
   }
 }
 

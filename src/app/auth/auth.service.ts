@@ -1,21 +1,38 @@
 import * as bcrypt from 'bcryptjs';
 import { v4 as uuidv4 } from 'uuid';
+import { Repository, Connection } from 'typeorm';
 import { Injectable, BadRequestException } from '@nestjs/common';
-import { DatabaseService } from '@src/shared/database';
+import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
-import { Token } from '@src/app/auth/auth.models';
-import { isEmpty } from 'lodash';
+import { UserService } from '@src/app/user';
+import { Token } from './auth.models';
+import { AuthEntity } from './auth.entity';
 
 @Injectable()
 export class AuthService {
   constructor(
+    private connection: Connection,
     private jwtService: JwtService,
-    private databaseService: DatabaseService
+    private userService: UserService,
+    @InjectRepository(AuthEntity)
+    private authRepository: Repository<AuthEntity>
   ) {}
 
   async generateToken(userData: object): Promise<Token> {
     const refreshToken = uuidv4();
-    await this.databaseService.add('refreshTokens', { refreshToken, ...userData });
+    const newTokenObject = this.authRepository.create({ refreshToken, ...userData });
+
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.save(newTokenObject);
+      await queryRunner.commitTransaction();
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
+    }
 
     return {
       accessToken: this.jwtService.sign(userData),
@@ -24,8 +41,7 @@ export class AuthService {
   }
 
   async validateUser(username: string, password: string): Promise<any> {
-    const { login, hash } = await this.databaseService.find(
-      'users',
+    const { login, hash } = await this.userService.getUser(
       { login: username }
     );
     const isPasswordCorrect = hash && await bcrypt.compare(password, hash);
@@ -42,22 +58,23 @@ export class AuthService {
     return await this.generateToken(payload);
   }
 
-  async removeRefreshToken(query: object): Promise<string> {
-    const removedObject = await this.databaseService.remove('refreshTokens', query);
-
-    return removedObject.refreshToken;
+  async removeRefreshToken(query: object) {
+    const removedObject = await this.authRepository.delete(query);
+    return removedObject.affected;
   }
 
   async refreshToken(refreshToken: string): Promise<Token> {
-    const refreshTokenData = await this.databaseService.find('refreshTokens', { refreshToken });
-    if (isEmpty(refreshTokenData)) {
+    try {
+      const refreshTokenData = await this.authRepository.findOneOrFail({ refreshToken });
+
+      await this.removeRefreshToken({
+        refreshToken: refreshTokenData.refreshToken
+      });
+
+      return await this.generateToken({ login: refreshTokenData.login});
+    } catch (err) {
       throw new BadRequestException('RefreshToken not exist');
     }
-
-    await this.removeRefreshToken({
-      refreshToken: refreshTokenData.refreshToken
-    });
-    return await this.generateToken({ login: refreshTokenData.login});
   }
 }
 
