@@ -1,33 +1,45 @@
-import { v4 as uuidv4 } from 'uuid';
+import { Repository, Connection } from 'typeorm';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable } from '@nestjs/common';
-import { DatabaseService } from '@src/shared/database';
+import { OperationEntity } from './operation.entity';
 
 @Injectable()
 export class OperationService {
   constructor(
-    private databaseService: DatabaseService
+    private connection: Connection,
+    @InjectRepository(OperationEntity)
+    private operationRepository: Repository<OperationEntity>
   ) {}
 
-  public async getOperations(): Promise<[OperationInterface]> {
-    return await this.databaseService.findAll('operations');
+  public async getOperations(): Promise<OperationEntity[]> {
+    return await this.operationRepository.find();
   }
 
-  public async getOperationById(id: string): Promise<OperationInterface> {
-    return await this.databaseService.find('operations', { id });
+  public async getOperationById(id: number): Promise<OperationEntity> {
+    return await this.operationRepository.findOne(id);
   }
 
-  public async addOperation(newOperation: OperationInterface): Promise<OperationInterface> {
-    const operation = {
-      id: uuidv4(),
-      ...newOperation
+  public async addOperation(operation: any): Promise<OperationEntity> {
+    const newOperation = this.operationRepository.create({ ...operation });
+
+    const queryRunner = this.connection.createQueryRunner();
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+    try {
+      await queryRunner.manager.save(newOperation);
+      await queryRunner.commitTransaction();
+      return operation;
+    } catch (err) {
+      await queryRunner.rollbackTransaction();
+    } finally {
+      await queryRunner.release();
     }
-    return await this.databaseService.add('operations', operation);
   }
 }
 
 export interface OperationInterface {
   id: string;
-  operationType: OperationType;
+  type: OperationType;
   categoryId: string;
   sum: number;
   currency: Currency;
