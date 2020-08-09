@@ -28,11 +28,11 @@ export interface ConfigInterface {
 const configData: ConfigInterface = {
   server: {
     port: parseInt(process.env.PORT, 10),
-    baseUrl: process.env.BASE_URL || '/'
+    baseUrl: process.env.BASE_URL ?? '/'
   },
   token: {
     secret: process.env.TOKEN_SECRET,
-    expiresIn: process.env.TOKEN_EXP || '1h'
+    expiresIn: process.env.TOKEN_EXP ?? '1h'
   },
   dataBase: {
     name: process.env.DB_NAME,
@@ -40,8 +40,8 @@ const configData: ConfigInterface = {
     port: parseInt(process.env.DB_PORT),
     user: process.env.DB_USER,
     password: process.env.DB_PASSWORD,
-    provider: process.env.DB_PROVIDER || 'DATABASE_CONNECTION',
-    userRepo: process.env.DB_USER_REPO || 'USER_REPOSITORY',
+    provider: process.env.DB_PROVIDER ?? 'DATABASE_CONNECTION',
+    userRepo: process.env.DB_USER_REPO ?? 'USER_REPOSITORY',
   }
 }
 

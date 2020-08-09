@@ -1,6 +1,5 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
-//import { DatabaseModule } from '@src/shared/database';
 import { config } from '@src/config';
 import { UserModule } from '@src/app/user';
 import { AuthModule } from '@src/app/auth';
