@@ -18,7 +18,9 @@ export class AuthService {
     private logsService: LogsService,
     @InjectRepository(AuthEntity)
     private authRepository: Repository<AuthEntity>
-  ) {}
+  ) {
+    logsService.setLabel('auth');
+  }
 
   async generateToken(userData: object): Promise<Token> {
     const refreshToken = uuidv4();
@@ -31,7 +33,7 @@ export class AuthService {
       await queryRunner.manager.save(newTokenObject);
       await queryRunner.commitTransaction();
     } catch (err) {
-      await this.logsService.create({ level: 'database', label: 'rollbackTransaction', message: err });
+      await this.logsService.error(err);
       await queryRunner.rollbackTransaction();
     } finally {
       await queryRunner.release();
@@ -54,7 +56,7 @@ export class AuthService {
         return { login };
       }
     } catch (err) {
-      await this.logsService.create({ level: 'database', label: 'getUser', message: err });
+      await this.logsService.error(err);
     }
     return null;
   }
@@ -70,7 +72,7 @@ export class AuthService {
       const removedObject = await this.authRepository.delete(query);
       return removedObject.affected;
     } catch (err) {
-      await this.logsService.create({ level: 'database', label: 'removeRefreshToken', message: err });
+      await this.logsService.error(err);
     }
   }
 
