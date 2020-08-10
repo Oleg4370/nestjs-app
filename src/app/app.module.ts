@@ -1,14 +1,17 @@
 import { Module } from '@nestjs/common';
 import { TypeOrmModule } from '@nestjs/typeorm';
+import { MongooseModule } from '@nestjs/mongoose';
 import { config } from '@src/config';
 import { UserModule } from '@src/app/user';
 import { AuthModule } from '@src/app/auth';
 import { OperationModule } from '@src/app/operation';
+import { LogsModule } from '@src/shared/logs';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 
 @Module({
   imports: [
+    MongooseModule.forRoot(config.dataBase.mongoLink),
     TypeOrmModule.forRoot({
       type: 'mysql',
       host: config.dataBase.host,
@@ -21,7 +24,8 @@ import { AppService } from './app.service';
     }),
     UserModule,
     AuthModule,
-    OperationModule
+    OperationModule,
+    LogsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
