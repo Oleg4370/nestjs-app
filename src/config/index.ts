@@ -22,6 +22,7 @@ export interface ConfigInterface {
     password: string;
     provider: string;
     userRepo: string;
+    mongoLink: string;
   }
 }
 
@@ -42,6 +43,8 @@ const configData: ConfigInterface = {
     password: process.env.DB_PASSWORD,
     provider: process.env.DB_PROVIDER ?? 'DATABASE_CONNECTION',
     userRepo: process.env.DB_USER_REPO ?? 'USER_REPOSITORY',
+    mongoLink:
+      `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0-x0jfu.mongodb.net/${process.env.MONGO_DB}?retryWrites=true&w=majority`
   }
 }
 

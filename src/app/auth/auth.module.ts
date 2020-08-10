@@ -5,6 +5,7 @@ import { config } from '@src/config';
 import { PassportModule } from '@nestjs/passport';
 import { LocalStrategy, JwtStrategy } from '@src/app/auth/strategies';
 import { UserModule } from '@src/app/user';
+import { LogsModule } from '@src/shared/logs';
 import { AuthService } from './auth.service';
 import { AuthController } from './auth.controller';
 import { AuthEntity } from './auth.entity';
@@ -17,7 +18,8 @@ import { AuthEntity } from './auth.entity';
       signOptions: { expiresIn: config.token.expiresIn },
     }),
     PassportModule,
-    UserModule
+    UserModule,
+    LogsModule
   ],
   controllers: [AuthController],
   providers: [AuthService, LocalStrategy, JwtStrategy]

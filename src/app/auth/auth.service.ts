@@ -5,6 +5,7 @@ import { Injectable, BadRequestException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { JwtService } from '@nestjs/jwt';
 import { UserService } from '@src/app/user';
+import { LogsService } from '@src/shared/logs';
 import { Token } from './auth.models';
 import { AuthEntity } from './auth.entity';
 
@@ -14,9 +15,12 @@ export class AuthService {
     private connection: Connection,
     private jwtService: JwtService,
     private userService: UserService,
+    private logsService: LogsService,
     @InjectRepository(AuthEntity)
     private authRepository: Repository<AuthEntity>
-  ) {}
+  ) {
+    logsService.setLabel('auth');
+  }
 
   async generateToken(userData: object): Promise<Token> {
     const refreshToken = uuidv4();
@@ -29,6 +33,7 @@ export class AuthService {
       await queryRunner.manager.save(newTokenObject);
       await queryRunner.commitTransaction();
     } catch (err) {
+      await this.logsService.error(err);
       await queryRunner.rollbackTransaction();
     } finally {
       await queryRunner.release();
@@ -41,13 +46,17 @@ export class AuthService {
   }
 
   async validateUser(username: string, password: string): Promise<any> {
-    const { login, hash } = await this.userService.getUser(
-      { login: username }
-    );
-    const isPasswordCorrect = hash && await bcrypt.compare(password, hash);
+    try {
+      const { login, hash } = await this.userService.getUser(
+        { login: username }
+      );
+      const isPasswordCorrect = hash && await bcrypt.compare(password, hash);
 
-    if (login && isPasswordCorrect) {
-      return { login };
+      if (login && isPasswordCorrect) {
+        return { login };
+      }
+    } catch (err) {
+      await this.logsService.error(err);
     }
     return null;
   }
@@ -59,8 +68,12 @@ export class AuthService {
   }
 
   async removeRefreshToken(query: object) {
-    const removedObject = await this.authRepository.delete(query);
-    return removedObject.affected;
+    try {
+      const removedObject = await this.authRepository.delete(query);
+      return removedObject.affected;
+    } catch (err) {
+      await this.logsService.error(err);
+    }
   }
 
   async refreshToken(refreshToken: string): Promise<Token> {
