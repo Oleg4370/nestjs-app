@@ -37,6 +37,10 @@ $ npm install
 ## Running the app
 
 ```bash
+# database
+## before run the app local db should be runned
+$ mysql.server start
+
 # development
 $ npm run start
 
