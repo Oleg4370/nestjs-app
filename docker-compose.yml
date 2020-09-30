@@ -1,0 +1,9 @@
+version: "3.8"
+services:
+  webapp:
+    build: .
+    command: node dist/main.js
+    ports:
+      - "3001:3001"
+    environment:
+      - DB_HOST=host.docker.internal
