@@ -4,7 +4,7 @@ COPY package*.json ./
 RUN npm install
 COPY . .
 RUN npm run build
-EXPOSE 3000
+EXPOSE 3001
 
 #FROM node:12.13.0 AS runner
 #WORKDIR /Users/oleh/projects/node-js-finances-nest
